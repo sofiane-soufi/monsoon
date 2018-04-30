@@ -55,35 +55,6 @@ abstract Monsoon(List<Layer>) from List<Layer> {
 					if (!matcher.ereg.match(req.path)) {
 						next();
 					} else {
-						var body:StringMap<String> = new StringMap<String>();
-
-						switch(req.body) {
-							case Parsed(parts): {
-								trace("info", "parsed body");
-								for(part in parts) {
-									switch(part.value) {
-										case Value(v): body.set(part.name, v);
-										default: {}
-									}
-								}
-							}
-							case Plain(source): {
-								trace("info", "plain body");
-								var b:Buffer = Buffer.alloc();
-								source.read(b).handle(function(outcome:Outcome<Progress, Error>) {
-									switch(outcome) {
-										case Success(data): {
-											body = parseBody(b.content().toString());
-											trace("log", body);
-										};
-										case Failure(failure): {
-											trace("error", failure);
-										};
-									}
-								});
-							}
-						}
-
 						var params: DynamicAccess<String> = {};
 						for (i in 0 ... matcher.keys.length)
 							params.set(matcher.keys[i].name, matcher.ereg.matched(i+1));
@@ -97,7 +68,7 @@ abstract Monsoon(List<Layer>) from List<Layer> {
 					callback(req, res, next);
 				}
 		});
-	
+
 	public inline function use(?path: String, callback: Layer)
 		return route(path, callback, false);
 		
